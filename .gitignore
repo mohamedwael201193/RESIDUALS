@@ -1,0 +1,37 @@
+# secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# deps / build
+node_modules/
+dist/
+build/
+coverage/
+.turbo/
+.next/
+.vite/
+
+# foundry
+contracts/cache/
+contracts/out/
+contracts/broadcast/
+
+# os / ide
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# local
+.tmp/
+.cache/
+
+# loop / local ops
+.loop-out.txt
+.loop-pid
+ask-body.json
+*.loop.*

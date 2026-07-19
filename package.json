@@ -1,0 +1,24 @@
+{
+  "name": "residuals",
+  "private": true,
+  "version": "0.1.0",
+  "description": "RESIDUALS — A2MCP agent that pays contributors whose knowledge was retrieved",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w @residuals/api",
+    "dev:web": "npm run dev -w @residuals/web",
+    "build": "npm run build -w @residuals/shared && npm run build -w @residuals/api && npm run build -w @residuals/web",
+    "typecheck": "npm run typecheck -w @residuals/shared && npm run typecheck -w @residuals/api && npm run typecheck -w @residuals/web",
+    "test": "npm run test -w @residuals/shared && npm run test -w @residuals/api",
+    "lint": "npm run lint -w @residuals/api --if-present",
+    "migrate": "npm run migrate -w @residuals/api",
+    "seed": "npm run seed -w @residuals/api",
+    "ci": "npm run typecheck && npm run test && npm run build"
+  }
+}
