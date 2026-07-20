@@ -1,0 +1,40 @@
+{
+  "name": "@residuals/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file=../../.env ../../node_modules/tsx/dist/cli.mjs watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --import tsx --env-file=../../.env --test src/**/*.test.ts",
+    "migrate": "node --import tsx --env-file=../../.env src/db/migrate.ts",
+    "seed": "node --import tsx --env-file=../../.env src/seed/load.ts",
+    "e2e:paid-ask": "node --import tsx --env-file=../../.env src/scripts/paid-ask.ts"
+  },
+  "dependencies": {
+    "@okxweb3/x402-axios": "^0.1.0",
+    "@okxweb3/x402-core": "~0.1.0",
+    "@okxweb3/x402-evm": "~0.2.1",
+    "@okxweb3/x402-express": "~0.1.1",
+    "@residuals/shared": "*",
+    "@upstash/redis": "^1.34.3",
+    "axios": "^1.16.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "pino": "^9.5.0",
+    "pino-http": "^10.3.0",
+    "postgres": "^3.4.5",
+    "viem": "^2.21.54",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
