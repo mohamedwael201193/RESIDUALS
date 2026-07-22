@@ -1,0 +1,37 @@
+# Render Blueprint — paid always-on web service + cron
+# Deploy: connect this repo in Render dashboard and apply blueprint.
+# Set all secrets from residuals/.env in the dashboard (do not commit .env).
+
+services:
+  - type: web
+    name: residuals-api
+    runtime: node
+    plan: starter
+    region: singapore
+    rootDir: residuals
+    buildCommand: npm ci && npm run build -w @residuals/shared && npm run build -w @residuals/api
+    startCommand: npm run start -w @residuals/api
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: PORT
+        value: "3000"
+      # Add remaining secrets in dashboard: OKX_*, OPERATOR_PRIVATE_KEY, DATABASE_URL,
+      # GEMINI_API_KEY, LLM_*, ADMIN_TOKEN, CRON_SECRET, RESIDUALS_VAULT_ADDRESS, PUBLIC_BASE_URL, etc.
+
+  - type: cron
+    name: residuals-sweep
+    runtime: node
+    plan: starter
+    region: singapore
+    rootDir: residuals
+    schedule: "*/10 * * * *"
+    buildCommand: "true"
+    startCommand: >
+      node -e "fetch(process.env.PUBLIC_BASE_URL+'/internal/sweep',{method:'POST',headers:{'x-cron-secret':process.env.CRON_SECRET}}).then(r=>r.text()).then(console.log)"
+    envVars:
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: CRON_SECRET
+        sync: false
