@@ -1,0 +1,23 @@
+{
+  "network": "eip155:196",
+  "chainId": 196,
+  "contract": "ResidualsVault",
+  "address": "0x068bB96e849F0DE3D49944Ec0F4aEd3D6B165770",
+  "operator": "0xf76e6B0920e9332fF4410f6dD53F01722AbC71a3",
+  "payTo": "0x94a18c39ac86b3a50f443db5083ec4132ab5e4f2",
+  "token": "0x779Ded0c9e1022225f8E0630b35a9b54bE713736",
+  "txHash": "0xe5c76d4c8d4b86875e7dcd85202949ffe46abbfd9a2e8f9bef51edfa55d22f85",
+  "blockNumber": "0x3f2c9c5",
+  "explorer": "https://www.okx.com/web3/explorer/xlayer/address/0x068bB96e849F0DE3D49944Ec0F4aEd3D6B165770",
+  "deployedAt": "2026-07-25T20:40:00Z",
+  "smoke": {
+    "approveTx": "0xed2a81563034f0a6e37e1ccd1de30259b2a1a0fc4422f9f9e258591936383f46",
+    "creditTx": "0x62bee7d83d59accfbb74b7a9959d29f4085a41d2ed8ab3b4eaa9e6c184113565",
+    "withdrawTx": "0x5fb965b559d4debb99fedcb85c272d2e982662777091c949eaa6c2db3534f67c",
+    "creditAmountBaseUnits": "100000",
+    "claimableAfterWithdraw": "0",
+    "smokedAt": "2026-07-25T21:45:00Z",
+    "result": "PASS — approve → credit(100000) → claimable=100000 → withdraw → claimable=0"
+  },
+  "notes": "Operator EOA funded with OKB+USDT0; PAY_TO is OKX Agentic Wallet for x402 fees"
+}
