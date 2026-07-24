@@ -108,3 +108,5 @@ $OP='0xf76e6B0920e9332fF4410f6dD53F01722AbC71a3'
 2026-07-25 ~21:00 UTC — operator=0xf76e… / PAY_TO=OKX 0x94a1… confirmed; vault smoke + paid settle PASS; payer fix + trust proxy; HTTPS tunnel probes green; waiting on always-on host credentials for ASP listing.
 
 2026-07-25 ~20:58 UTC (loop tick) — API still green locally; restarted so `/health` reloads `RESIDUALS_VAULT_ADDRESS`. Still blocked: no `FLY_API_TOKEN` / Render / Vercel credentials for always-on deploy.
+
+<!-- ship-checkpoint 01 -->
