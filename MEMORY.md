@@ -110,3 +110,5 @@ $OP='0xf76e6B0920e9332fF4410f6dD53F01722AbC71a3'
 2026-07-25 ~20:58 UTC (loop tick) — API still green locally; restarted so `/health` reloads `RESIDUALS_VAULT_ADDRESS`. Still blocked: no `FLY_API_TOKEN` / Render / Vercel credentials for always-on deploy.
 
 <!-- ship-checkpoint 01 -->
+
+<!-- ship-checkpoint 02 -->
