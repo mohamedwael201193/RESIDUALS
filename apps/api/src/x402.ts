@@ -17,8 +17,10 @@ const ASK_DESCRIPTION =
   "1) POST JSON {\"query\":\"…\"} with a practical how-to question (3-500 chars). 2) After x402 settlement, receive an answer composed only from retrieved contributor entries plus citations. 3) A published share of the 0.03 USD₮0 fee accrues to cited contributors.";
 
 /**
- * v1-style discovery block that OKX buyer agents look for on accepts[].
+ * Compact v1-style discovery block on accepts[].
  * Without this, paid replay POSTs an empty body → 400 "query must be 3-500 chars".
+ * Keep this small: buyers echo accepts into PAYMENT-SIGNATURE and oversized
+ * payloads break facilitator verify.
  */
 export const ASK_OUTPUT_SCHEMA = {
   input: {
@@ -26,14 +28,6 @@ export const ASK_OUTPUT_SCHEMA = {
     method: "POST",
     discoverable: true,
     bodyType: "json",
-    bodyFields: {
-      query: {
-        type: "string",
-        description: "Practical how-to question (3-500 characters)",
-        minLength: 3,
-        maxLength: 500,
-      },
-    },
     body: {
       query: "How do I open a business bank account in Singapore?",
     },
@@ -54,19 +48,11 @@ export const ASK_OUTPUT_SCHEMA = {
   output: {
     type: "json",
     example: {
-      answer: "Concrete steps composed from retrieved contributor entries.",
+      answer: "Concrete steps from retrieved contributor entries.",
       charged: true,
       fee: "0.03",
-      paidMicros: "30000",
       queryId: 1,
-      citations: [
-        {
-          entryId: 1,
-          handle: "mina.k",
-          topic: "Singapore freelancing bank account",
-          score: 0.78,
-        },
-      ],
+      citations: [{ entryId: 1, handle: "mina.k", topic: "bank account", score: 0.78 }],
     },
   },
 } as const;
@@ -111,26 +97,71 @@ export function injectAskInputSchema(headerValue: string): string {
       }));
     }
 
-    // Keep bazaar extension if middleware already set it; otherwise attach ours.
+    // Prefer middleware-enriched bazaar; only fill if missing.
     const ext = { ...(challenge.extensions ?? {}) };
     if (!ext.bazaar) {
       Object.assign(ext, askDiscoveryExtensions);
     }
-    // Also expose v1 alias some buyers scan at the top level.
-    ext.outputSchema = ASK_OUTPUT_SCHEMA;
     challenge.extensions = ext;
-
-    if (challenge.resource && typeof challenge.resource === "object") {
-      challenge.resource = {
-        ...challenge.resource,
-        description: ASK_DESCRIPTION,
-        mimeType: "application/json",
-      };
-    }
 
     return Buffer.from(JSON.stringify(challenge), "utf8").toString("base64");
   } catch {
     return headerValue;
+  }
+}
+
+/**
+ * Buyers copy challenge accepts/extensions into PAYMENT-SIGNATURE.
+ * Facilitator PaymentRequirementsSchema rejects unknown keys (outputSchema),
+ * so strip discovery-only fields before x402 verify/settle.
+ */
+export function sanitizePaymentSignature(headerValue: string): string {
+  try {
+    const payload = JSON.parse(
+      Buffer.from(headerValue, "base64").toString("utf8"),
+    ) as {
+      accepted?: Record<string, unknown>;
+      extensions?: Record<string, unknown> | null;
+      [k: string]: unknown;
+    };
+
+    if (payload.accepted && typeof payload.accepted === "object") {
+      const {
+        outputSchema: _drop,
+        ...accepted
+      } = payload.accepted as Record<string, unknown> & {
+        outputSchema?: unknown;
+      };
+      payload.accepted = accepted;
+    }
+
+    if (payload.extensions && typeof payload.extensions === "object") {
+      const {
+        outputSchema: _dropExt,
+        ...extensions
+      } = payload.extensions as Record<string, unknown> & {
+        outputSchema?: unknown;
+      };
+      // Keep bazaar (v2 discovery) if present — it is OptionalAny on payload.
+      if (Object.keys(extensions).length > 0) {
+        payload.extensions = extensions;
+      } else {
+        delete payload.extensions;
+      }
+    }
+
+    return Buffer.from(JSON.stringify(payload), "utf8").toString("base64");
+  } catch {
+    return headerValue;
+  }
+}
+
+function sanitizeIncomingPaymentHeaders(req: Request): void {
+  for (const name of ["payment-signature", "PAYMENT-SIGNATURE", "x-payment"]) {
+    const raw = req.headers[name];
+    if (typeof raw === "string" && raw.length > 0) {
+      req.headers[name] = sanitizePaymentSignature(raw);
+    }
   }
 }
 
@@ -216,6 +247,7 @@ export function buildPaymentMiddleware(): RequestHandler {
 
   return (req: Request, res: Response, next: NextFunction) => {
     if (req.path === "/ask" || req.url?.startsWith("/ask")) {
+      sanitizeIncomingPaymentHeaders(req);
       withAskInputSchema(res);
     }
     return inner(req, res, next);
