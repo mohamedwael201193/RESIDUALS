@@ -137,24 +137,25 @@ curl -i https://residuals-api.onrender.com/health
 - **Verified live:** deep health embeddings OK; sample OK; paid settle tx `0x708c0b38…`; query #16 royalties `+$0.015`; contributor `0x1111…1111` accrued **$0.03**
 
 ## Last update
-2026-07-26 ~17:10 UTC+3 — **Tanjiro #2: 402 `outputSchema.input` (in progress → ship).**
+2026-07-26 ~17:20 UTC+3 — **Tanjiro #2 FIXED LIVE** (`3ae65c6` + `84c199a`, Render `dep-d9j1csn41pts73as4nv0`).
 
-### Root cause (Tanjiro #9374 RESIDUALS — unchanged after first fix)
-- Free `/sample` OK; unpaid `/ask` 402 amount/network/token OK.
-- Paid `/ask` still 400 `query must be 3-500 chars`, **txHash null** — buyer never spent.
-- Handler already reads `query`/`q`/`question`, but **402 challenge had no input schema**, so OKX pay-flow replayed with **empty body**.
+### Root cause
+- Handler already accepted `query`, but **402 had no `outputSchema.input`**, so OKX buyer pay-flow replayed paid `/ask` with **empty body** → 400, **txHash null**.
 
-### Fix (this commit)
-- `apps/api/src/x402.ts`: register `bazaarResourceServerExtension` + `declareDiscoveryExtension` (POST JSON `query` required)
-- Wrap `PAYMENT-REQUIRED` to inject `accepts[].outputSchema.input` (v1 shape Tanjiro named) + `extensions.outputSchema` / bazaar
-- Scripts: `npm run probe:402-schema`; probe:input asserts `hasAskInputSchema`
-- Unit: `x402.schema.test.ts`
+### Fix
+- Inject `accepts[].outputSchema.input` = POST + JSON + required `query` on unpaid 402
+- Register `bazaarResourceServerExtension` / `declareDiscoveryExtension`
+- **Sanitize** incoming `PAYMENT-SIGNATURE`: strip `accepted.outputSchema` (buyers echo it; facilitator rejects unknown keys) — first deploy broke settle until this
 
-### Verify after Render live
-1. `PUBLIC_BASE_URL=https://residuals-api.onrender.com npm run probe:402-schema -w @residuals/api` → all PASS
-2. `npm run probe:input` → ask402 + hasAskInputSchema
-3. `npm run e2e:paid-ask-post` → 200 + answer + non-null txHash
-4. Resubmit listing / reply Tanjiro with decoded 402 proof
+### Live proof
+| Check | Result |
+|-------|--------|
+| `probe:402-schema` | **20/20 PASS** — GET+POST have `outputSchema.input` method POST, bodyType json, required query |
+| `probe:input` | sample OK · ask402 + hasAskInputSchema · necktie corpus OK |
+| Paid POST `{query}` | **200** · charged · answer · citations · tx `0xff422d3ef30dcd6501cea60b3f170051162aafd88c21a8022e10c8114a3d53b3` · queryId **53** |
+
+### Next
+- Resubmit ASP #9374 + reply Tanjiro with 402 schema + settle tx proof
 
 ---
 
