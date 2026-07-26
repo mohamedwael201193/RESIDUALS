@@ -13,7 +13,7 @@ RESIDUALS answers practical how-to questions from a human-contributed knowledge 
 - **serviceName:** Ask  
 - **serviceType:** A2MCP  
 - **fee:** `0.03`  
-- **endpoint:** `{PUBLIC_BASE_URL}/ask`  
+- **endpoint:** `https://residuals-api.onrender.com/ask`  
 
 **serviceDescription (3 parts):**  
 1) Submit a practical how-to question via GET or POST.  
@@ -25,7 +25,7 @@ RESIDUALS answers practical how-to questions from a human-contributed knowledge 
 - **serviceName:** Sample  
 - **serviceType:** A2MCP  
 - **fee:** `0`  
-- **endpoint:** `{PUBLIC_BASE_URL}/sample`  
+- **endpoint:** `https://residuals-api.onrender.com/sample`  
 
 **serviceDescription (3 parts):**  
 1) Submit a practical question for a free shortened preview.  
@@ -39,14 +39,17 @@ Local file ≤1 MB (URLs rejected): `docs/avatar.png` (copy of reeded-glass hero
 ## Probe checklist (before submit)
 
 ```bash
-curl -i -X GET  "$PUBLIC_BASE_URL/ask?q=test"    # 402 + PAYMENT-REQUIRED
-curl -i -X POST "$PUBLIC_BASE_URL/ask" -H 'content-type: application/json' -d '{"q":"test"}'
-curl -i -X GET  "$PUBLIC_BASE_URL/sample?q=test" # 200
-curl -i          "$PUBLIC_BASE_URL/health"       # 200
+curl -i -X GET  "https://residuals-api.onrender.com/ask?q=test"    # 402 + PAYMENT-REQUIRED
+curl -i -X POST "https://residuals-api.onrender.com/ask" -H 'content-type: application/json' -d '{"q":"test"}'
+curl -i -X GET  "https://residuals-api.onrender.com/sample?q=test" # 200
+curl -i          "https://residuals-api.onrender.com/health"       # 200
 ```
+
+Frontend: https://residuals-web.vercel.app  
+Repo: https://github.com/mohamedwael201193/RESIDUALS
 
 ## Notes
 
 - Never use earn forever / passive income / guaranteed / yield / APY language.  
-- Host must be always-on HTTPS (no free-tier cold starts).  
+- Host is Render **starter** always-on in Singapore (`residuals-api`).  
 - Record Agent ID here after submission: `AGENT_ID=`
