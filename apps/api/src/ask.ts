@@ -84,23 +84,23 @@ export async function runAsk(params: {
   const queryId = Number(row!.id);
 
   if (params.charge && params.payer && paid > 0n) {
-    await recordPayerSeen(params.payer, entryIds);
-    // Re-read distinct_payers so the unlocking query can accrue immediately.
-    const fresh = await withFreshDistinctPayers(retrieved);
-    const eligible = filterAccrualEligible(
-      excludePayerEntries(fresh, params.payer),
-    );
-    if (eligible.length > 0) {
-      try {
+    try {
+      await recordPayerSeen(params.payer, entryIds);
+      // Re-read distinct_payers so the unlocking query can accrue immediately.
+      const fresh = await withFreshDistinctPayers(retrieved);
+      const eligible = filterAccrualEligible(
+        excludePayerEntries(fresh, params.payer),
+      );
+      if (eligible.length > 0) {
         await accrueRoyalties({
           queryId,
           paidMicros: paid,
           entries: eligible,
         });
-      } catch (err) {
-        // Payment already settled — never fail the paid response on accrual.
-        console.error("accrueRoyalties failed", { queryId, err });
       }
+    } catch (err) {
+      // Payment already settled — never fail the paid response on accrual.
+      console.error("royalty path failed", { queryId, err });
     }
   }
 
