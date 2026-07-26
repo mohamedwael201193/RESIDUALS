@@ -25,7 +25,9 @@ const schema = z.object({
   DATABASE_URL: z.string().min(1),
   DATABASE_URL_DIRECT: z.string().optional().or(z.literal("")),
 
-  EMBEDDINGS_PROVIDER: z.enum(["gemini", "openai"]).default("gemini"),
+  EMBEDDINGS_PROVIDER: z
+    .enum(["gemini", "openai", "openrouter"])
+    .default("gemini"),
   EMBEDDINGS_API_KEY: z.string().min(1),
   EMBEDDINGS_MODEL: z.string().min(1),
   EMBEDDINGS_TIMEOUT_MS: z.coerce.number().int().positive().default(4000),
