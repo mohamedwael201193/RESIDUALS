@@ -93,7 +93,8 @@ Earlier paid settle: `0xa5b4b92581a065451eea9ca5bafaa21ab82aa6c313e74c1dde1ba553
 - [x] Codex ChatGPT connected (no Cursor OpenAI API key available/needed)
 - [ ] Marketplace listed / approved
 - [ ] Category → Lifestyle (blocked in CLI update; watch OKX UI)
-- [ ] Royalty accrual (≥2 distinct payers) + sweep credit
+- [x] Royalty accrual (≥2 distinct payers) — live `+$0.015` / query; contributor accrued $0.03
+- [ ] Sweep credit on-chain (`/internal/sweep`) + contributor withdraw tx
 - [ ] Demo / X / #OKXAI / Google form
 - [ ] ≥10 external contributors
 - [ ] Optional: improve weak-sample retrieval (cast-iron miss)
@@ -127,5 +128,13 @@ curl -i https://residuals-api.onrender.com/health
 - Stay on email/Google Agentic Wallet for ASP identity
 - Always append results of every step to this MEMORY.md
 
+## Incident / recovery (2026-07-25 ~22:20–23:20 UTC)
+- Funded **2nd payer** `0x135b181E86aA540C57351387cB61868Bf9776fBE` (OKB+USDT0 from OPERATOR); paid ask PASS
+- Royalty bug: Postgres BIGINT ids as strings → accruals never inserted; fixed + refresh distinct_payers
+- Render stuck `update_in_progress` / API down: `/health` was calling Gemini (slow); made health DB-only (`?deep=1` for embeds)
+- Gemini **429 quota** from Render → OpenRouter fallback for `gemini-embedding-001` @ 768 dims
+- Crash loop: `EMBEDDINGS_PROVIDER=openrouter` rejected by zod enum → allowed `openrouter`; boot restored with gemini+failover
+- **Verified live:** deep health embeddings OK; sample OK; paid settle tx `0x708c0b38…`; query #16 royalties `+$0.015`; contributor `0x1111…1111` accrued **$0.03**
+
 ## Last update
-2026-07-25 ~22:20 UTC — Full prod retest PASS (health+agentId, sample, ask402, ledger, web, paid settle). Codex ChatGPT OK (Cursor has no extractable OpenAI API key). ASP **#9374 Listing under review** (AI suggested pass). Render redeploy live. Next: 2nd payer for royalties + Lifestyle category + demo/form while waiting for marketplace approve.
+2026-07-26 ~03:36 UTC+3 — Wrote canonical **`docs/SOURCE_OF_TRUTH.md`** + full **`README.md`** (clone/local/test/prod). Inventory via Grok 4.5 fast explore subagent. Pushing docs to GitHub.
