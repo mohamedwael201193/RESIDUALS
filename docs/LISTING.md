@@ -34,9 +34,16 @@ RESIDUALS answers practical how-to questions from a human-contributed knowledge 
 - **endpoint:** `https://residuals-api.onrender.com/ask`  
 
 **serviceDescription:**  
-1) Submit a practical how-to question via GET `?q=` or POST JSON/form with `q` / `query` / `question`.  
+1) POST JSON `{"query":"…"}` (3–500 chars) — primary paid path. Also accepts GET `?q=` and aliases `q` / `question`.  
 2) After x402 settlement, receive an answer composed only from retrieved contributor entries plus citation handles.  
 3) A published share of the 0.03 USD₮0 fee accrues to cited contributors for later vault withdrawal.
+
+**402 discovery (required for OKX buyer pay-flow):** unpaid `/ask` `PAYMENT-REQUIRED` includes `accepts[].outputSchema.input`:
+- `type: http`, `method: POST`, `bodyType: json`
+- `schema.required: ["query"]` + example `body.query`
+- Also `extensions.bazaar` via `@x402/extensions`
+
+Decode check: `npm run probe:402-schema -w @residuals/api`
 
 ## Service 2 — Sample
 
@@ -62,6 +69,9 @@ curl -i "https://residuals-api.onrender.com/ask?q=test"   # 402 + PAYMENT-REQUIR
 curl -i -X POST "https://residuals-api.onrender.com/ask" -H 'content-type: application/json' -d '{"query":"How do I open a bank account in Singapore"}'  # 402
 curl -i -X POST "https://residuals-api.onrender.com/sample" -H 'content-type: application/json' -d '{"query":"How do I open a bank account in Singapore"}'  # 200 + answer
 curl -i "https://residuals-api.onrender.com/health"       # 200
+
+# 402 must advertise POST+JSON query input schema (Tanjiro)
+npm run probe:402-schema -w @residuals/api
 
 # paid (operator wallet) — POST replay path
 npm run e2e:paid-ask-post -w @residuals/api

@@ -34,6 +34,14 @@ async function hit(
     }
   }
   const accepts = (challenge?.accepts as Array<Record<string, unknown>> | undefined)?.[0];
+  const outputSchema = accepts?.outputSchema as
+    | { input?: { method?: string; bodyType?: string; schema?: { required?: string[] } } }
+    | undefined;
+  const hasAskInputSchema =
+    outputSchema?.input?.method === "POST" &&
+    outputSchema?.input?.bodyType === "json" &&
+    Array.isArray(outputSchema?.input?.schema?.required) &&
+    outputSchema!.input!.schema!.required!.includes("query");
   console.log(
     JSON.stringify({
       label,
@@ -45,9 +53,10 @@ async function hit(
       asset: accepts?.asset ?? null,
       payTo: accepts?.payTo ?? null,
       scheme: accepts?.scheme ?? null,
+      hasAskInputSchema,
     }),
   );
-  return { status: r.status, json, accepts };
+  return { status: r.status, json, accepts, hasAskInputSchema };
 }
 
 async function main() {
@@ -144,7 +153,8 @@ async function main() {
         r.accepts?.network === "eip155:196" &&
         String(r.accepts?.asset || "").toLowerCase() ===
           "0x779ded0c9e1022225f8e0630b35a9b54be713736" &&
-        r.accepts?.amount === "30000",
+        r.accepts?.amount === "30000" &&
+        r.hasAskInputSchema === true,
     );
   const tie = results[10];
   const tieTopic = Array.isArray(tie?.json?.citations)

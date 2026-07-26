@@ -137,7 +137,28 @@ curl -i https://residuals-api.onrender.com/health
 - **Verified live:** deep health embeddings OK; sample OK; paid settle tx `0x708c0b38…`; query #16 royalties `+$0.015`; contributor `0x1111…1111` accrued **$0.03**
 
 ## Last update
-2026-07-26 ~04:05 UTC+3 — **Full frontend redesign (UI only; APIs untouched).**
+2026-07-26 ~17:10 UTC+3 — **Tanjiro #2: 402 `outputSchema.input` (in progress → ship).**
+
+### Root cause (Tanjiro #9374 RESIDUALS — unchanged after first fix)
+- Free `/sample` OK; unpaid `/ask` 402 amount/network/token OK.
+- Paid `/ask` still 400 `query must be 3-500 chars`, **txHash null** — buyer never spent.
+- Handler already reads `query`/`q`/`question`, but **402 challenge had no input schema**, so OKX pay-flow replayed with **empty body**.
+
+### Fix (this commit)
+- `apps/api/src/x402.ts`: register `bazaarResourceServerExtension` + `declareDiscoveryExtension` (POST JSON `query` required)
+- Wrap `PAYMENT-REQUIRED` to inject `accepts[].outputSchema.input` (v1 shape Tanjiro named) + `extensions.outputSchema` / bazaar
+- Scripts: `npm run probe:402-schema`; probe:input asserts `hasAskInputSchema`
+- Unit: `x402.schema.test.ts`
+
+### Verify after Render live
+1. `PUBLIC_BASE_URL=https://residuals-api.onrender.com npm run probe:402-schema -w @residuals/api` → all PASS
+2. `npm run probe:input` → ask402 + hasAskInputSchema
+3. `npm run e2e:paid-ask-post` → 200 + answer + non-null txHash
+4. Resubmit listing / reply Tanjiro with decoded 402 proof
+
+---
+
+## Prior: Full frontend redesign (2026-07-26 ~04:05 UTC+3)
 
 ### Design system
 - `apps/web/DESIGN.md` — Residuals dark charcoal + amber (Planhat rhythm inspiration, not a clone)
@@ -195,6 +216,32 @@ curl -i https://residuals-api.onrender.com/health
 - **Recording PASS:** raw MP4 saved at `docs/demo/residuals-demo-raw.mp4` (~30MB) and `~/.narrateai-demomaker/runs/20260726-044923/demo.mp4`
 - **Narration FAIL:** NarrateAI quota — `Limit exceeded. Remaining: 0 min 9 sec`
 - **Next:** top up NarrateAI minutes → re-run `create_demo_video` (same plan) for final ≤90s `#OKXAI` clip
+
+## Tanjiro rejection fix (2026-07-26 ~16:20 UTC+3)
+### Root cause (confirmed live before fix)
+- Unpaid POST `/ask` returned 402 (OK), but **paid replay POST with `{query}`** hit handler with empty string → `400 query must be 3-500 chars` (no settle deliverable).
+- Only `q` was read; `query` / `question` / form bodies failed. No `express.urlencoded`.
+- Weak retrieval: "tie a tie" → microbus (score ~0.50 with `MIN_RELEVANCE=0.40`).
+
+### Fixes shipped (`6f9d653` + `043c20c`) — Render **live** `dep-d9j0h0dsbgtc73d02lg0`
+- `extractQuery()` accepts `q|query|question` (+ aliases/nested) from GET + POST JSON/form
+- `express.urlencoded` enabled
+- `MIN_RELEVANCE=0.55` (Render + local)
+- Corpus +3 real entries (necktie, cast iron, SGD wire) seeded on prod
+- `docs/LISTING.md` documents intentional **payTo** `0x94a1…e4f2` vs agent wallet / vault
+- Scripts: `npm run probe:input`, `npm run e2e:paid-ask-post`
+
+### Live proof (operator wallet as user)
+| Check | Result |
+|-------|--------|
+| POST sample `query` / `question` / form | **200** + answer |
+| GET/POST `/ask` unpaid | **402** · network `eip155:196` · amount `30000` · USDT0 · scheme exact |
+| Paid POST `{query}` | **200** · charged · answer · citations · tx `0xf762ef77…972f933` · queryId **39** |
+| Sample "how to tie a tie" | cites **How to tie a necktie four-in-hand** |
+| Agent #9374 | `Listing rejected` · online · **resubmit needed** |
+
+### Message to OKX (after resubmit)
+Paid POST deliverable verified as user (operator `0xf76e…71a3`): payment settled + answer returned. Input contract fixed for `q/query/question` GET+POST.
 
 ## Demo video SUCCESS (2026-07-26 ~06:30 UTC+3)
 - New NarrateAI key saved in `~/.cursor/mcp.json` + `~/.narrateai/credentials.json`

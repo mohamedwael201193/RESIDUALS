@@ -13,7 +13,8 @@
     "seed": "node --import tsx --env-file=../../.env src/seed/load.ts",
     "e2e:paid-ask": "node --import tsx --env-file=../../.env src/scripts/paid-ask.ts",
     "e2e:paid-ask-post": "node --import tsx --env-file=../../.env src/scripts/paid-ask-post.ts",
-    "probe:input": "node --import tsx --env-file=../../.env src/scripts/probe-input.ts"
+    "probe:input": "node --import tsx --env-file=../../.env src/scripts/probe-input.ts",
+    "probe:402-schema": "node --import tsx --env-file=../../.env src/scripts/probe-402-schema.ts"
   },
   "dependencies": {
     "@okxweb3/x402-axios": "^0.1.0",
@@ -22,6 +23,7 @@
     "@okxweb3/x402-express": "~0.1.1",
     "@residuals/shared": "*",
     "@upstash/redis": "^1.34.3",
+    "@x402/extensions": "^2.19.0",
     "axios": "^1.16.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
