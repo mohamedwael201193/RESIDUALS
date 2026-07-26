@@ -28,20 +28,26 @@ router.get(
   asyncHandler(async (_req, res) => {
     const started = Date.now();
     let dbOk = false;
-    let embedOk = false;
     try {
       await db()`SELECT 1`;
       dbOk = true;
     } catch (err) {
       log.error({ err }, "health db");
     }
-    try {
-      const v = await embed("residuals health check");
-      embedOk = v.length === env().EMBEDDINGS_DIMENSIONS;
-    } catch (err) {
-      log.error({ err }, "health embed");
+    // Keep deploy healthchecks fast: do NOT call external embeddings here.
+    // Embeddings are verified on /sample and paid /ask paths.
+    const deep = String(_req.query.deep ?? "") === "1";
+    let embedOk: boolean | null = null;
+    if (deep) {
+      embedOk = false;
+      try {
+        const v = await embed("residuals health check");
+        embedOk = v.length === env().EMBEDDINGS_DIMENSIONS;
+      } catch (err) {
+        log.error({ err }, "health embed");
+      }
     }
-    const ok = dbOk && embedOk;
+    const ok = dbOk && (embedOk === null || embedOk);
     res.status(ok ? 200 : 503).json({
       ok,
       service: "residuals",
