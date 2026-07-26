@@ -52,17 +52,18 @@ export async function withFreshDistinctPayers(
   entries: RetrievedEntry[],
 ): Promise<RetrievedEntry[]> {
   if (entries.length === 0) return entries;
-  const ids = entries.map((e) => e.id);
+  const ids = entries.map((e) => Number(e.id));
   const sql = db();
-  const rows = await sql<{ id: number; distinct_payers: number }[]>`
-    SELECT id, distinct_payers FROM entries WHERE id = ANY(${ids}::bigint[])
+  // postgres.js: use sql(ids) for IN-lists — `ANY(${ids}::bigint[])` throws at runtime.
+  const rows = await sql<{ id: number | string; distinct_payers: number }[]>`
+    SELECT id, distinct_payers FROM entries WHERE id IN ${sql(ids)}
   `;
   const map = new Map(
     rows.map((r) => [Number(r.id), Number(r.distinct_payers)]),
   );
   return entries.map((e) => ({
     ...e,
-    distinct_payers: map.get(e.id) ?? e.distinct_payers,
+    distinct_payers: map.get(Number(e.id)) ?? e.distinct_payers,
   }));
 }
 
