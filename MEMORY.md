@@ -61,8 +61,8 @@ Earlier paid settle: `0xa5b4b92581a065451eea9ca5bafaa21ab82aa6c313e74c1dde1ba553
 |------|-------|
 | **Agent ID** | **#9374** |
 | Create tx | `0xc2a2a0b588fae107dc37ac1a057b9ccbdf595c0e72c7be2089f2031d07358bb5` |
-| Approval | **Listing under review** — remark: **“AI quality review suggested pass”** |
-| Status | still `not listed` until marketplace approve |
+| Approval | **Listed** — eligible for task recommendations (`approvalStatus` 4) |
+| Status | **active / listed** (Tanjiro paid `/ask` verified 2026-07-26) |
 | CLI | Onchain OS + `onchainos.exe` v4.4.0; Codex via ChatGPT OAuth |
 | Avatar | `docs/avatar.jpg` (~48KB) |
 | Category | `SOFTWARE_SERVICES` (LISTING wants Lifestyle; `agent update` has **no category flag** — may need OKX UI or recreate later) |
@@ -137,25 +137,26 @@ curl -i https://residuals-api.onrender.com/health
 - **Verified live:** deep health embeddings OK; sample OK; paid settle tx `0x708c0b38…`; query #16 royalties `+$0.015`; contributor `0x1111…1111` accrued **$0.03**
 
 ## Last update
-2026-07-26 ~17:20 UTC+3 — **Tanjiro #2 FIXED LIVE** (`3ae65c6` + `84c199a`, Render `dep-d9j1csn41pts73as4nv0`).
+2026-07-26 ~17:35 UTC+3 — **Tanjiro verified PASS — endpoint clear; ASP already listed.**
 
-### Root cause
-- Handler already accepted `query`, but **402 had no `outputSchema.input`**, so OKX buyer pay-flow replayed paid `/ask` with **empty body** → 400, **txHash null**.
+### Tanjiro re-check (#9374 RESIDUALS)
+- Unpaid `/ask` 402: `accepts[].outputSchema.input` + `extensions.bazaar` — **confirmed live**
+- Paid POST `{"query":"What documents do I need to register a company in the UAE?"}` → **HTTP 200** full answer
+- Settle tx `0x56be9e8257996d94a371ee4d946f6f807da719082518a3ee6a2675b1fd6ca5d9` · success · payer `0x6c43dd04…`
+- Price 0.03 · `eip155:196` · exact · payTo `0x94a1…e4f2` expected
+- Quote: *“Root cause fix is verified. Nothing left on the endpoint. Good to relist / resubmit.”*
 
-### Fix
-- Inject `accepts[].outputSchema.input` = POST + JSON + required `query` on unpaid 402
-- Register `bazaarResourceServerExtension` / `declareDiscoveryExtension`
-- **Sanitize** incoming `PAYMENT-SIGNATURE`: strip `accepted.outputSchema` (buyers echo it; facilitator rejects unknown keys) — first deploy broke settle until this
+### Listing state (onchainos)
+- **approvalLabel:** Listed — eligible for task recommendations (`approvalDisplayStatus` / `approvalStatus` **4**)
+- active · online · soldCount **11** · Ask Query + Sample Preview services present
 
-### Live proof
-| Check | Result |
-|-------|--------|
-| `probe:402-schema` | **20/20 PASS** — GET+POST have `outputSchema.input` method POST, bodyType json, required query |
-| `probe:input` | sample OK · ask402 + hasAskInputSchema · necktie corpus OK |
-| Paid POST `{query}` | **200** · charged · answer · citations · tx `0xff422d3ef30dcd6501cea60b3f170051162aafd88c21a8022e10c8114a3d53b3` · queryId **53** |
+### Prior fix commits
+`3ae65c6` + `84c199a` (402 `outputSchema.input` + payment-signature sanitize)
 
-### Next
-- Resubmit ASP #9374 + reply Tanjiro with 402 schema + settle tx proof
+### Next (hackathon)
+- Demo / X `#OKXAI` / Google form if still open
+- Optional: category Lifestyle (still `SOFTWARE_SERVICES` in CLI)
+- Sweep / withdraw polish
 
 ---
 
