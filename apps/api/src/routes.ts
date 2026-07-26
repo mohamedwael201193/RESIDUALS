@@ -38,13 +38,18 @@ router.get(
     // Embeddings are verified on /sample and paid /ask paths.
     const deep = String(_req.query.deep ?? "") === "1";
     let embedOk: boolean | null = null;
+    let embedError: string | null = null;
     if (deep) {
       embedOk = false;
       try {
         const v = await embed("residuals health check");
         embedOk = v.length === env().EMBEDDINGS_DIMENSIONS;
+        if (!embedOk) {
+          embedError = `dim ${v.length} != ${env().EMBEDDINGS_DIMENSIONS}`;
+        }
       } catch (err) {
         log.error({ err }, "health embed");
+        embedError = err instanceof Error ? err.message : String(err);
       }
     }
     const ok = dbOk && (embedOk === null || embedOk);
@@ -53,6 +58,7 @@ router.get(
       service: "residuals",
       latencyMs: Date.now() - started,
       deps: { database: dbOk, embeddings: embedOk },
+      embedError,
       vault: env().RESIDUALS_VAULT_ADDRESS || null,
       agentId: env().AGENT_ID || null,
     });
