@@ -11,7 +11,9 @@
     "test": "node --import tsx --env-file=../../.env --test src/**/*.test.ts",
     "migrate": "node --import tsx --env-file=../../.env src/db/migrate.ts",
     "seed": "node --import tsx --env-file=../../.env src/seed/load.ts",
-    "e2e:paid-ask": "node --import tsx --env-file=../../.env src/scripts/paid-ask.ts"
+    "e2e:paid-ask": "node --import tsx --env-file=../../.env src/scripts/paid-ask.ts",
+    "e2e:paid-ask-post": "node --import tsx --env-file=../../.env src/scripts/paid-ask-post.ts",
+    "probe:input": "node --import tsx --env-file=../../.env src/scripts/probe-input.ts"
   },
   "dependencies": {
     "@okxweb3/x402-axios": "^0.1.0",

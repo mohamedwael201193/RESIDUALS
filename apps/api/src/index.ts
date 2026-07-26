@@ -21,6 +21,8 @@ app.use(
   }),
 );
 app.use(express.json({ limit: "256kb" }));
+// Paid buyer agents often replay as application/x-www-form-urlencoded.
+app.use(express.urlencoded({ extended: true, limit: "256kb" }));
 app.use(
   pinoHttp({
     logger: log,

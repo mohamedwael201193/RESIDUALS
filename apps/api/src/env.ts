@@ -54,7 +54,8 @@ const schema = z.object({
   PUBLIC_BASE_URL: z.string().optional().default(""),
   QUERY_PRICE_USD: z.string().default("0.03"),
   ROYALTY_BPS: z.coerce.number().int().min(0).max(10000).default(5000),
-  MIN_RELEVANCE: z.coerce.number().min(0).max(1).default(0.4),
+  // Prefer "no coverage" over off-topic corpus hits (reviewer rejection: wrong microbus for "tie a tie").
+  MIN_RELEVANCE: z.coerce.number().min(0).max(1).default(0.55),
   TOP_K: z.coerce.number().int().positive().default(4),
   ADMIN_TOKEN: z.string().min(16),
   CRON_SECRET: z.string().min(16),

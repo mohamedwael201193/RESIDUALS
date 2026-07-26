@@ -164,3 +164,40 @@ curl -i https://residuals-api.onrender.com/health
 
 ### Unchanged (as required)
 - `lib/api.ts`, vault, wallet, backend, royalty logic, x402 contracts
+
+## Ledger “(no query text)” fix (2026-07-26 ~04:20 UTC+3)
+### Root cause
+- DB `queries` table stored **hash + answer only** — no plaintext column
+- `/ledger` returned `queryHash` only; web `RoyaltyLedger` fell back to `"(no query text)"`
+- Secondary: sample/ask responses lacked `citations`; ledger `royalties` not mapped; UI double-`$`
+
+### Fix (`5755b67` — Render + Vercel READY)
+1. Migration `003_query_text.sql` → `queries.query_text TEXT` (applied prod)
+2. `ask.ts` INSERT `query_text`; return citations with handles
+3. `/sample` + `/ask` include `citations` + `queryId`; `/ledger` returns `query` + enriched royalties
+4. Web normalize: map `royalties`; old rows → `Query {hashSlice}…`
+
+### Live e2e evidence
+| Check | Result |
+|-------|--------|
+| Health / agentId | OK / 9374 |
+| Sample | answer + queryId + citations (e.g. `lina.bank`) |
+| Contribute | 201 — entry id **91** (`qa-deep-tester`) |
+| `/ask` | 402 PAYMENT-REQUIRED (correct) |
+| Ledger #19/#20 | full text: *How do I open a business bank account in Singapore for a freelancing LLC?* |
+| Ledger #16 (paid) | `mina.k` · +$0.015; amount +$0.03 |
+| Pre-migration rows | hash stub (not “(no query text)”) |
+| Chrome `/ledger` | confirmed real query text on newest rows; no `$ $0.00` |
+
+## Demo video (2026-07-26 ~04:55 UTC+3)
+- **Can record before listing approval:** yes (form still needs listed ASP)
+- NarrateAI plan ready (home → how-it-works → contribute fill → sample ask + citations → paid x402 → ledger mina.k → withdraw)
+- **Recording PASS:** raw MP4 saved at `docs/demo/residuals-demo-raw.mp4` (~30MB) and `~/.narrateai-demomaker/runs/20260726-044923/demo.mp4`
+- **Narration FAIL:** NarrateAI quota — `Limit exceeded. Remaining: 0 min 9 sec`
+- **Next:** top up NarrateAI minutes → re-run `create_demo_video` (same plan) for final ≤90s `#OKXAI` clip
+
+## Demo video SUCCESS (2026-07-26 ~06:30 UTC+3)
+- New NarrateAI key saved in `~/.cursor/mcp.json` + `~/.narrateai/credentials.json`
+- Tight cinematic raw (landing story + Ask citations + ledger): `docs/demo/residuals-demo-tight-raw.mp4` (~50.8s)
+- **Narrated final:** `docs/demo/residuals-demo-final.mp4` (~10.6MB)
+- Job `7ce9f2f5-5512-43b1-9bfa-e55e7060cdc5` · voice `male2` · ready for X `#OKXAI` (≤90s)

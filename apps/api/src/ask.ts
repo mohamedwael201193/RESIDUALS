@@ -51,7 +51,10 @@ export async function runAsk(params: {
   const e = env();
   const q = params.q.trim();
   if (q.length < 3 || q.length > 500) {
-    throw Object.assign(new Error("query must be 3-500 chars"), { status: 400 });
+    throw Object.assign(
+      new Error("query must be 3-500 chars (send q, query, or question via GET or POST)"),
+      { status: 400 },
+    );
   }
 
   const retrieved = await retrieve(q);

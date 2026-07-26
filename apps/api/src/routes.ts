@@ -11,6 +11,7 @@ import { embed, toPgVector } from "./embeddings.js";
 import { env } from "./env.js";
 import { log } from "./log.js";
 import { contributorBalances } from "./royalties.js";
+import { extractQuery } from "./extractQuery.js";
 import { extractPayer } from "./x402.js";
 
 export const router = Router();
@@ -66,12 +67,8 @@ router.get(
 );
 
 async function handleSample(req: Request, res: Response) {
-  const q =
-    typeof req.query.q === "string"
-      ? req.query.q
-      : typeof req.body?.q === "string"
-        ? req.body.q
-        : "";
+  // Accept q / query / question from GET or POST (JSON + form) — paid buyers replay via POST.
+  const q = extractQuery(req);
   const result = await runAsk({ q, payer: null, charge: false, sample: true });
   res.json({
     answer: result.answer,
@@ -88,12 +85,8 @@ router.get("/sample", asyncHandler(handleSample));
 router.post("/sample", asyncHandler(handleSample));
 
 async function handleAsk(req: Request, res: Response) {
-  const q =
-    typeof req.query.q === "string"
-      ? req.query.q
-      : typeof req.body?.q === "string"
-        ? req.body.q
-        : "";
+  // Accept q / query / question from GET or POST (JSON + form) — x402 paid replay is POST.
+  const q = extractQuery(req);
   const payer = extractPayer(req);
   const result = await runAsk({ q, payer, charge: true, sample: false });
   // No-charge path: if nothing retrieved, still 200 (payment already settled by middleware).
