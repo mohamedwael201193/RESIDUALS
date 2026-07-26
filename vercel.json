@@ -1,0 +1,7 @@
+{
+  "buildCommand": "npm run build -w @residuals/shared && npm run build -w @residuals/web",
+  "installCommand": "npm install",
+  "outputDirectory": "apps/web/dist",
+  "framework": "vite",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
