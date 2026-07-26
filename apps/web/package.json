@@ -10,10 +10,13 @@
     "typecheck": "tsc -b --noEmit"
   },
   "dependencies": {
+    "@fontsource/jetbrains-mono": "^5.3.0",
     "@fontsource/outfit": "^5.2.6",
+    "@gsap/react": "^2.1.2",
     "@phosphor-icons/react": "^2.1.10",
     "@residuals/shared": "*",
     "@tanstack/react-query": "^5.66.0",
+    "gsap": "^3.15.0",
     "motion": "^12.4.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

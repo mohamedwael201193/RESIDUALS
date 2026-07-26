@@ -3,6 +3,8 @@ import { AskDemo } from "../components/AskDemo";
 import { ContributeForm } from "../components/ContributeForm";
 import { RoyaltyLedger } from "../components/RoyaltyLedger";
 import { WithdrawPanel } from "../components/WithdrawPanel";
+import { Reveal } from "../components/motion";
+import { SiteShell } from "../components/SiteShell";
 import { Button } from "../components/ui";
 
 const tabs = [
@@ -14,52 +16,56 @@ const tabs = [
 
 export function AppShell() {
   return (
-    <div className="min-h-[100dvh] bg-surface-muted text-ink">
-      <header className="sticky top-0 z-30 border-b border-hairline bg-canvas/90 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-[1100px] items-center justify-between gap-4 px-5 md:h-[72px] md:px-8">
-          <div className="flex items-center gap-6">
-            <Link to="/" className="text-lg font-semibold tracking-tight">
-              RESIDUALS
-            </Link>
-            <nav className="hidden items-center gap-5 text-sm text-ink-muted md:flex">
-              {tabs.map((t) => (
-                <a key={t.href} href={t.href} className="hover:text-ink">
-                  {t.label}
-                </a>
-              ))}
-            </nav>
-          </div>
-          <Link to="/">
-            <Button variant="secondary">Marketing site</Button>
-          </Link>
+    <SiteShell>
+      <section className="px-5 pb-10 pt-32 md:px-8 md:pt-36">
+        <div className="mx-auto max-w-[1100px]">
+          <Reveal>
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <div>
+                <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">Product</h1>
+                <p className="mt-4 max-w-2xl text-ink-muted">
+                  Sample answers, inspect the royalty ledger, publish knowledge, and withdraw
+                  settled USD₮0 on X Layer. All panels call the live API.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {tabs.map((t) => (
+                  <a
+                    key={t.href}
+                    href={t.href}
+                    className="rounded-full border border-hairline px-4 py-2 text-sm text-ink-muted transition hover:border-amber/50 hover:text-ink"
+                  >
+                    {t.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </Reveal>
         </div>
-      </header>
+      </section>
 
-      <main className="mx-auto max-w-[1100px] space-y-10 px-5 py-10 md:px-8 md:py-14">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">Product</h1>
-          <p className="mt-3 max-w-2xl text-ink-muted">
-            Sample answers, inspect the royalty ledger, publish knowledge, and withdraw
-            settled USD₮0 on X Layer. All panels call the live API.
-          </p>
-        </div>
-
-        <section id="sample" className="scroll-mt-24">
+      <main className="mx-auto max-w-[1100px] space-y-10 px-5 pb-24 md:px-8 md:pb-32">
+        <section id="sample" className="scroll-mt-28">
           <AskDemo defaultMode="sample" />
         </section>
-
-        <section id="ledger" className="scroll-mt-24">
+        <section id="ledger" className="scroll-mt-28">
           <RoyaltyLedger />
         </section>
-
-        <section id="contribute" className="scroll-mt-24">
+        <section id="contribute" className="scroll-mt-28">
           <ContributeForm />
         </section>
-
-        <section id="withdraw" className="scroll-mt-24">
+        <section id="withdraw" className="scroll-mt-28">
           <WithdrawPanel />
         </section>
+        <div className="flex flex-wrap gap-3 pt-4">
+          <Link to="/docs">
+            <Button variant="secondary">Docs</Button>
+          </Link>
+          <Link to="/">
+            <Button variant="ghost">Marketing site</Button>
+          </Link>
+        </div>
       </main>
-    </div>
+    </SiteShell>
   );
 }

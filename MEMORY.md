@@ -137,4 +137,30 @@ curl -i https://residuals-api.onrender.com/health
 - **Verified live:** deep health embeddings OK; sample OK; paid settle tx `0x708c0b38…`; query #16 royalties `+$0.015`; contributor `0x1111…1111` accrued **$0.03**
 
 ## Last update
-2026-07-26 ~03:36 UTC+3 — Wrote canonical **`docs/SOURCE_OF_TRUTH.md`** + full **`README.md`** (clone/local/test/prod). Inventory via Grok 4.5 fast explore subagent. Pushing docs to GitHub.
+2026-07-26 ~04:05 UTC+3 — **Full frontend redesign (UI only; APIs untouched).**
+
+### Design system
+- `apps/web/DESIGN.md` — Residuals dark charcoal + amber (Planhat rhythm inspiration, not a clone)
+- Tokens in `index.css`: Outfit + JetBrains Mono, glass nav, grain, ambient mesh
+- Brand kit board: `apps/web/public/brandkit.png`
+- Deps: `gsap`, `@gsap/react`, `@fontsource/jetbrains-mono`
+
+### Routes (all redesigned)
+`/` · `/how-it-works` · `/ask` · `/contribute` · `/ledger` · `/withdraw` · `/docs` · `/about` · `/app` · `404`
+
+### Motion
+- Scroll-pin story stack (`StoryPin`)
+- Animated SVG royalty path (`FlowDiagram`)
+- Reveal / stagger / magnetic CTAs (`motion.tsx`)
+- Lazy-loaded routes for code splitting
+- `prefers-reduced-motion` respected
+
+### QA (local preview `127.0.0.1:4173`)
+- Homepage: live API Online, ledger 16, brandkit image OK, hero OK
+- Ask / Contribute / Ledger / Withdraw / Docs / About / How / 404 visited
+- Fixed: Ask toggle contrast on dark; form `name`/`id`; favicon; StoryPin TS types
+- Build: `npx vite build` PASS
+- **Not yet pushed/deployed to Vercel** — ask user or proceed on request
+
+### Unchanged (as required)
+- `lib/api.ts`, vault, wallet, backend, royalty logic, x402 contracts

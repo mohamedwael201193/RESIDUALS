@@ -2,8 +2,10 @@ import { ArrowRight, Coins, Path, UsersThree } from "@phosphor-icons/react";
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Footer } from "../components/Footer";
-import { Nav } from "../components/Nav";
+import { FlowDiagram } from "../components/FlowDiagram";
+import { Magnetic, Reveal, StaggerWords } from "../components/motion";
+import { SiteShell } from "../components/SiteShell";
+import { StoryPin } from "../components/StoryPin";
 import { Button } from "../components/ui";
 import { getHealth, getLedger } from "../lib/api";
 import { formatMicros } from "../lib/money";
@@ -30,7 +32,10 @@ export function Landing() {
       .then((ledger) => {
         if (cancelled) return;
         setLedgerCount(ledger.total ?? ledger.items.length);
-        const sum = ledger.items.reduce((acc, row) => acc + (row.charged ? row.paidMicros : 0), 0);
+        const sum = ledger.items.reduce(
+          (acc, row) => acc + (row.charged ? row.paidMicros : 0),
+          0,
+        );
         setPaidMicros(sum);
       })
       .catch(() => {
@@ -44,235 +49,187 @@ export function Landing() {
     };
   }, []);
 
-  const fade = (delay = 0) =>
-    reduce
-      ? {}
-      : {
-          initial: { opacity: 0, y: 18 },
-          animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] as const },
-        };
-
-  const inView = reduce
-    ? {}
-    : {
-        initial: { opacity: 0, y: 28 },
-        whileInView: { opacity: 1, y: 0 },
-        viewport: { once: true, margin: "-80px" },
-        transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
-      };
-
   return (
-    <div className="bg-canvas text-ink">
-      <section className="relative min-h-[100dvh] overflow-hidden text-white">
+    <SiteShell overHero>
+      <section className="relative min-h-[100dvh] overflow-hidden pt-20">
         <img
           src="/hero-reeded.png"
           alt=""
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover opacity-55"
         />
         <div
-          className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.55)_0%,rgba(0,0,0,0.45)_45%,rgba(0,0,0,0.72)_100%)]"
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_20%,rgba(196,138,58,0.22),transparent_45%),linear-gradient(180deg,rgba(7,7,8,0.55)_0%,rgba(7,7,8,0.72)_50%,rgba(7,7,8,0.96)_100%)]"
           aria-hidden
         />
-        <Nav overHero />
+        {!reduce ? (
+          <motion.div
+            className="pointer-events-none absolute -left-24 top-24 h-72 w-72 rounded-full bg-amber/20 blur-3xl"
+            animate={{ x: [0, 40, 0], y: [0, 24, 0], opacity: [0.35, 0.55, 0.35] }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+            aria-hidden
+          />
+        ) : null}
 
-        <div className="relative z-10 mx-auto flex min-h-[100dvh] max-w-[980px] flex-col items-center justify-center px-5 pb-16 pt-20 text-center md:px-8">
-          <motion.h1
-            className="text-5xl font-semibold tracking-tight md:text-7xl lg:text-[5.5rem] lg:leading-[0.95]"
-            {...fade(0)}
-          >
-            RESIDUALS
-          </motion.h1>
-          <motion.p
-            className="mt-5 max-w-3xl text-balance text-2xl font-medium tracking-tight text-white md:text-4xl md:leading-[1.15]"
-            {...fade(0.08)}
-          >
-            Pay the humans who actually know.
-          </motion.p>
-          <motion.p
-            className="mt-6 max-w-xl text-base text-white/80 md:text-lg"
-            {...fade(0.16)}
-          >
-            Every paid query shares fees with contributors whose answers were retrieved.
-          </motion.p>
-          <motion.div className="mt-10 flex flex-wrap items-center justify-center gap-3" {...fade(0.24)}>
-            <Link to="/app">
-              <Button variant="onDark">
-                Try a sample
-                <ArrowRight size={16} weight="bold" />
-              </Button>
-            </Link>
-            <a href="#contribute">
-              <Button variant="onDarkGhost">Contribute</Button>
-            </a>
-          </motion.div>
+        <div className="relative z-10 mx-auto grid min-h-[100dvh] max-w-[1400px] items-center gap-12 px-5 pb-20 pt-10 md:grid-cols-12 md:px-8 md:pt-6">
+          <div className="md:col-span-7 lg:col-span-6">
+            <StaggerWords
+              text="Pay the humans who actually know."
+              className="max-w-5xl text-4xl font-semibold tracking-tight text-ink md:text-5xl lg:text-[3.4rem] lg:leading-[1.05]"
+            />
+            <motion.p
+              className="mt-6 max-w-xl text-base text-ink-muted md:text-lg"
+              initial={reduce ? false : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            >
+              Every paid query shares fees with contributors whose answers were retrieved.
+            </motion.p>
+            <motion.div
+              className="mt-10 flex flex-wrap items-center gap-3"
+              initial={reduce ? false : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <Magnetic>
+                <Link to="/ask">
+                  <Button variant="amber">
+                    Try a sample
+                    <ArrowRight size={16} />
+                  </Button>
+                </Link>
+              </Magnetic>
+              <Link to="/how-it-works">
+                <Button variant="secondary">See the flow</Button>
+              </Link>
+            </motion.div>
+          </div>
+
+          <div className="md:col-span-5 lg:col-span-6">
+            <Reveal>
+              <div className="glass-panel overflow-hidden rounded-[28px] p-5 md:p-7">
+                <p className="font-mono text-[11px] tracking-[0.14em] text-amber">
+                  LIVE ROYALTY PATH
+                </p>
+                <FlowDiagram className="mt-6" />
+                <div className="mt-6 grid grid-cols-3 gap-3 border-t border-hairline pt-5 text-center">
+                  <div>
+                    <p className="font-mono text-xs text-ink-muted">Fee</p>
+                    <p className="mt-1 text-sm font-medium">0.03 USD₮0</p>
+                  </div>
+                  <div>
+                    <p className="font-mono text-xs text-ink-muted">Agent</p>
+                    <p className="mt-1 text-sm font-medium">#9374</p>
+                  </div>
+                  <div>
+                    <p className="font-mono text-xs text-ink-muted">Chain</p>
+                    <p className="mt-1 text-sm font-medium">X Layer</p>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
         </div>
       </section>
 
-      <section className="border-b border-hairline bg-surface-muted py-10 md:py-12">
-        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-center gap-x-10 gap-y-4 px-5 md:px-8">
-          {trustMarks.map((mark) => (
-            <span
-              key={mark}
-              className="text-sm font-medium tracking-wide text-ink/45 md:text-base"
-            >
-              {mark}
+      <section className="border-y border-hairline bg-surface/40 py-8">
+        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-6 px-5 md:px-8">
+          {trustMarks.map((m) => (
+            <span key={m} className="font-mono text-xs tracking-[0.16em] text-ink-muted">
+              {m}
             </span>
           ))}
         </div>
       </section>
 
-      <section id="how" className="scroll-mt-20 bg-canvas py-32 md:py-40">
-        <div className="mx-auto max-w-[1400px] px-5 md:px-8">
-          <motion.div {...inView} className="max-w-3xl">
-            <h2 className="text-4xl font-semibold tracking-tight md:text-5xl">
-              Knowledge with a payout path
-            </h2>
-            <p className="mt-6 max-w-2xl text-lg text-ink-muted">
-              Agents ask. RESIDUALS retrieves human-written entries, cites who helped, and
-              accrues USD₮0 royalties off-chain before batch settlement on X Layer.
-            </p>
-          </motion.div>
+      <StoryPin />
 
-          <div className="mt-20 grid gap-10 md:grid-cols-3 md:gap-12">
-            {[
-              {
-                icon: Path,
-                title: "Retrieve with receipts",
-                body: "Answers are composed from ranked corpus entries. Citations name the contributor, not a faceless model.",
-              },
-              {
-                icon: Coins,
-                title: "Split the query fee",
-                body: "Half of each paid ask is shared by relevance. Integer micros only. The public ledger shows every split.",
-              },
-              {
-                icon: UsersThree,
-                title: "Withdraw yourself",
-                body: "Settled balances land in ResidualsVault. Contributors connect a wallet and call withdraw().",
-              },
-            ].map((item, i) => (
-              <motion.div key={item.title} {...inView} transition={{ delay: reduce ? 0 : i * 0.08 }}>
-                <item.icon size={28} className="text-amber" weight="duotone" />
-                <h3 className="mt-5 text-xl font-semibold tracking-tight">{item.title}</h3>
-                <p className="mt-3 text-ink-muted">{item.body}</p>
-              </motion.div>
-            ))}
+      <section className="px-5 py-24 md:px-8 md:py-40">
+        <div className="mx-auto max-w-[1400px]">
+          <Reveal>
+            <h2 className="max-w-3xl text-3xl font-semibold tracking-tight md:text-5xl">
+              One query. A full settlement path.
+            </h2>
+            <p className="mt-5 max-w-2xl text-ink-muted">
+              Sample for free. Pay once for a settled ask. Cited humans accrue royalties into
+              ResidualsVault.
+            </p>
+          </Reveal>
+
+          <div className="mt-14 grid grid-flow-dense gap-4 md:grid-cols-6 md:grid-rows-2">
+            <Reveal className="glass-panel rounded-[28px] p-7 md:col-span-3 md:row-span-2">
+              <Path size={28} className="text-amber" weight="duotone" />
+              <h3 className="mt-6 text-2xl font-semibold tracking-tight">Retrieve + cite</h3>
+              <p className="mt-3 max-w-md text-ink-muted">
+                Embeddings find the human entries that actually answer the how-to. Citations
+                drive the split, not vibes.
+              </p>
+              <img
+                src="/brandkit.png"
+                alt="RESIDUALS brand system"
+                className="mt-8 aspect-[4/3] w-full rounded-2xl object-cover opacity-90"
+              />
+            </Reveal>
+            <Reveal delay={0.06} className="glass-panel rounded-[28px] p-7 md:col-span-3">
+              <Coins size={28} className="text-amber" weight="duotone" />
+              <h3 className="mt-5 text-xl font-semibold">x402 settle</h3>
+              <p className="mt-2 text-sm text-ink-muted">
+                Paid `/ask` settles 0.03 USD₮0 on X Layer before the answer returns.
+              </p>
+            </Reveal>
+            <Reveal delay={0.1} className="glass-panel rounded-[28px] p-7 md:col-span-3">
+              <UsersThree size={28} className="text-amber" weight="duotone" />
+              <h3 className="mt-5 text-xl font-semibold">Vault + withdraw</h3>
+              <p className="mt-2 text-sm text-ink-muted">
+                Cron sweeps accruals on-chain. Contributors withdraw when balances clear.
+              </p>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      <section className="bg-ink py-32 text-white md:py-40">
-        <div className="mx-auto grid max-w-[1400px] items-center gap-16 px-5 md:grid-cols-2 md:px-8">
-          <motion.div {...inView}>
-            <h2 className="text-4xl font-semibold tracking-tight md:text-5xl">
-              Built for agents that pay
+      <section className="border-t border-hairline bg-surface-muted px-5 py-24 md:px-8 md:py-36">
+        <div className="mx-auto grid max-w-[1400px] gap-10 md:grid-cols-3">
+          {[
+            {
+              label: "API",
+              value: health?.ok ? "Online" : health === null ? "Checking" : "Degraded",
+            },
+            {
+              label: "Ledger rows",
+              value: ledgerCount === null ? "—" : String(ledgerCount),
+            },
+            {
+              label: "Recent paid volume",
+              value: paidMicros === null ? "—" : formatMicros(paidMicros),
+            },
+          ].map((stat, i) => (
+            <Reveal key={stat.label} delay={i * 0.06}>
+              <p className="font-mono text-xs tracking-[0.14em] text-ink-muted">{stat.label}</p>
+              <p className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{stat.value}</p>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      <section className="px-5 py-24 md:px-8 md:py-40">
+        <div className="mx-auto flex max-w-[1400px] flex-col items-start justify-between gap-8 md:flex-row md:items-end">
+          <Reveal>
+            <h2 className="max-w-2xl text-3xl font-semibold tracking-tight md:text-5xl">
+              Start with a free sample. Publish what you know.
             </h2>
-            <p className="mt-6 max-w-lg text-lg text-white/70">
-              Unpaid GET /ask returns 402 with an x402 challenge. Free GET /sample lets
-              judges preview retrieval without settlement.
-            </p>
-            <div className="mt-10 flex flex-wrap gap-3">
-              <Link to="/app">
-                <Button variant="onDark">Open product</Button>
+          </Reveal>
+          <Reveal delay={0.08}>
+            <div className="flex flex-wrap gap-3">
+              <Link to="/ask">
+                <Button variant="amber">Open Ask</Button>
               </Link>
-              <a href="#ledger">
-                <Button variant="onDarkGhost">View ledger</Button>
-              </a>
-            </div>
-          </motion.div>
-
-          <motion.div
-            {...inView}
-            className="rounded-2xl border border-white/10 bg-white/[0.04] p-8 backdrop-blur"
-          >
-            <p className="text-sm text-white/50">Live status</p>
-            <dl className="mt-6 space-y-5">
-              <div className="flex items-baseline justify-between gap-4 border-b border-white/10 pb-4">
-                <dt className="text-white/60">API health</dt>
-                <dd className="font-medium">
-                  {health ? (health.ok ? "OK" : "Degraded") : "Unavailable"}
-                </dd>
-              </div>
-              <div className="flex items-baseline justify-between gap-4 border-b border-white/10 pb-4">
-                <dt className="text-white/60">Database</dt>
-                <dd className="font-medium">
-                  {health?.db === undefined ? "n/a" : health.db ? "Up" : "Down"}
-                </dd>
-              </div>
-              <div className="flex items-baseline justify-between gap-4 border-b border-white/10 pb-4">
-                <dt className="text-white/60">Embeddings</dt>
-                <dd className="font-medium">
-                  {health?.embeddings === undefined
-                    ? "n/a"
-                    : health.embeddings
-                      ? "Up"
-                      : "Down"}
-                </dd>
-              </div>
-              <div className="flex items-baseline justify-between gap-4 border-b border-white/10 pb-4">
-                <dt className="text-white/60">Ledger rows (live)</dt>
-                <dd className="font-medium">
-                  {ledgerCount === null ? "n/a" : ledgerCount.toLocaleString()}
-                </dd>
-              </div>
-              <div className="flex items-baseline justify-between gap-4">
-                <dt className="text-white/60">Paid volume in latest page</dt>
-                <dd className="font-medium text-amber-soft">
-                  {paidMicros === null ? "n/a" : formatMicros(paidMicros)}
-                </dd>
-              </div>
-            </dl>
-            <p className="mt-6 text-xs text-white/40">
-              Figures load from GET /health and GET /ledger. Empty means the API is offline
-              or the corpus is new.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      <section id="ledger" className="scroll-mt-20 bg-canvas py-32 md:py-40">
-        <div className="mx-auto max-w-[1400px] px-5 md:px-8">
-          <motion.div {...inView} className="max-w-3xl">
-            <h2 className="text-4xl font-semibold tracking-tight md:text-5xl">
-              A public royalty trail
-            </h2>
-            <p className="mt-6 max-w-2xl text-lg text-ink-muted">
-              Every charged query writes an immutable audit row. Open the product shell to
-              watch citations and dollar amounts update from the live API.
-            </p>
-          </motion.div>
-          <motion.div {...inView} className="mt-14">
-            <Link to="/app#ledger">
-              <Button>
-                Open royalty ledger
-                <ArrowRight size={16} weight="bold" />
-              </Button>
-            </Link>
-          </motion.div>
-        </div>
-      </section>
-
-      <section id="contribute" className="scroll-mt-20 bg-ink py-32 text-white md:py-40">
-        <div className="mx-auto max-w-[1400px] px-5 text-center md:px-8">
-          <motion.div {...inView}>
-            <h2 className="text-4xl font-semibold tracking-tight md:text-5xl">
-              Contribute once. Earn when retrieved.
-            </h2>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-white/70">
-              Publish concrete how-to knowledge. When an agent pays for an answer that uses
-              your entry, your share accrues automatically.
-            </p>
-            <div className="mt-10">
-              <Link to="/app#contribute">
-                <Button variant="onDark">Contribute</Button>
+              <Link to="/contribute">
+                <Button variant="secondary">Contribute</Button>
               </Link>
             </div>
-          </motion.div>
+          </Reveal>
         </div>
       </section>
-
-      <Footer />
-    </div>
+    </SiteShell>
   );
 }

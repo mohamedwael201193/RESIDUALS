@@ -10,23 +10,25 @@ export function cx(...parts: Array<string | false | null | undefined>): string {
   return parts.filter(Boolean).join(" ");
 }
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "onDark" | "onDarkGhost";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "amber" | "onDark" | "onDarkGhost";
 
 const buttonStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-ink text-white hover:bg-ink/90 focus-visible:outline-amber",
+    "bg-ink text-ink-inverse hover:bg-ink/90 focus-visible:outline-amber",
+  amber:
+    "bg-amber text-ink-inverse hover:bg-amber-soft focus-visible:outline-amber-soft",
   secondary:
-    "bg-transparent text-ink border border-ink/20 hover:border-ink/50 focus-visible:outline-amber",
+    "bg-transparent text-ink border border-hairline-dark hover:border-amber/60 focus-visible:outline-amber",
   ghost:
-    "bg-transparent text-ink hover:bg-ink/5 focus-visible:outline-amber",
+    "bg-transparent text-ink-muted hover:text-ink hover:bg-white/5 focus-visible:outline-amber",
   onDark:
-    "bg-white text-ink hover:bg-white/90 focus-visible:outline-amber-soft",
+    "bg-ink text-ink-inverse hover:bg-ink/90 focus-visible:outline-amber",
   onDarkGhost:
-    "bg-transparent text-white border border-white/40 hover:border-white focus-visible:outline-amber-soft",
+    "bg-transparent text-ink border border-hairline-dark hover:border-amber/50 focus-visible:outline-amber",
 };
 
 export function Button({
-  variant = "primary",
+  variant = "amber",
   className,
   children,
   ...props
@@ -38,7 +40,7 @@ export function Button({
     <button
       type="button"
       className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium tracking-tight transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium tracking-tight transition will-change-transform active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50",
         buttonStyles[variant],
         className,
       )}
@@ -75,7 +77,7 @@ export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
     <input
       {...props}
       className={cx(
-        "w-full rounded-xl border border-hairline bg-canvas px-4 py-3 text-ink outline-none transition placeholder:text-ink-muted/70 focus:border-amber",
+        "w-full rounded-2xl border border-hairline bg-surface px-4 py-3 text-ink outline-none transition placeholder:text-ink-muted/70 focus:border-amber",
         props.className,
       )}
     />
@@ -87,7 +89,7 @@ export function Textarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
     <textarea
       {...props}
       className={cx(
-        "w-full min-h-32 rounded-xl border border-hairline bg-canvas px-4 py-3 text-ink outline-none transition placeholder:text-ink-muted/70 focus:border-amber",
+        "w-full min-h-32 rounded-2xl border border-hairline bg-surface px-4 py-3 text-ink outline-none transition placeholder:text-ink-muted/70 focus:border-amber",
         props.className,
       )}
     />
@@ -109,8 +111,8 @@ export function Panel({
       className={cx(
         "rounded-2xl border p-6 md:p-8",
         dark
-          ? "border-hairline-dark bg-ink text-ink-inverse shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
-          : "border-hairline bg-canvas shadow-[0_18px_50px_rgba(10,10,10,0.06)]",
+          ? "border-hairline-dark bg-surface-2 text-ink shadow-[0_24px_80px_rgba(0,0,0,0.45)]"
+          : "border-hairline bg-surface shadow-[0_18px_50px_rgba(0,0,0,0.35)]",
         className,
       )}
     >
@@ -127,7 +129,7 @@ export function StateBlock({
   body: string;
 }) {
   return (
-    <div className="rounded-xl border border-dashed border-hairline px-5 py-8 text-center">
+    <div className="rounded-2xl border border-dashed border-hairline px-5 py-8 text-center">
       <p className="font-medium text-ink">{title}</p>
       <p className="mt-2 text-sm text-ink-muted">{body}</p>
     </div>
@@ -137,7 +139,7 @@ export function StateBlock({
 export function Skeleton({ className }: { className?: string }) {
   return (
     <div
-      className={cx("animate-pulse rounded-lg bg-surface-muted", className)}
+      className={cx("animate-pulse rounded-lg bg-surface-2", className)}
       aria-hidden
     />
   );

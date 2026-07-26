@@ -69,6 +69,8 @@ export function ContributeForm() {
       <form onSubmit={submit} className="mt-8 grid gap-5 md:grid-cols-2">
         <Field label="Payout address">
           <Input
+            id="contribute-address"
+            name="address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             placeholder="0x..."
@@ -79,6 +81,8 @@ export function ContributeForm() {
         </Field>
         <Field label="Handle">
           <Input
+            id="contribute-handle"
+            name="handle"
             value={handle}
             onChange={(e) => setHandle(e.target.value)}
             placeholder="@yourname"
@@ -87,6 +91,8 @@ export function ContributeForm() {
         </Field>
         <Field label="Topic">
           <Input
+            id="contribute-topic"
+            name="topic"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="Banking in Singapore"
@@ -95,6 +101,8 @@ export function ContributeForm() {
         </Field>
         <Field label="Region (optional)">
           <Input
+            id="contribute-region"
+            name="region"
             value={region}
             onChange={(e) => setRegion(e.target.value)}
             placeholder="SG"
@@ -104,6 +112,8 @@ export function ContributeForm() {
         <div className="md:col-span-2">
           <Field label="Entry body" hint={bodyHint}>
             <Textarea
+              id="contribute-body"
+              name="body"
               value={body}
               onChange={(e) => setBody(e.target.value)}
               placeholder="Write the concrete steps you wish someone had told you..."

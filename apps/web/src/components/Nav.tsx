@@ -1,80 +1,93 @@
 import { List, X } from "@phosphor-icons/react";
-import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { Magnetic } from "./motion";
 import { Button, cx } from "./ui";
 
 const links = [
-  { to: "/#how", label: "How it works" },
-  { to: "/#ledger", label: "Ledger" },
-  { to: "/app", label: "Product" },
+  { to: "/how-it-works", label: "How it works" },
+  { to: "/ask", label: "Ask" },
+  { to: "/contribute", label: "Contribute" },
+  { to: "/ledger", label: "Ledger" },
+  { to: "/docs", label: "Docs" },
 ];
 
 export function Nav({ overHero = false }: { overHero?: boolean }) {
   const [open, setOpen] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
 
   return (
-    <header
-      className={cx(
-        "absolute inset-x-0 top-0 z-40",
-        overHero ? "text-white" : "text-ink",
-      )}
-    >
-      <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-5 md:h-[72px] md:px-8">
-        <Link to="/" className="text-lg font-semibold tracking-tight">
-          RESIDUALS
-        </Link>
-
-        <nav className="hidden items-center gap-8 text-sm md:flex">
-          {links.map((l) => (
-            <a
-              key={l.to}
-              href={l.to}
-              className="opacity-80 transition hover:opacity-100"
-            >
-              {l.label}
-            </a>
-          ))}
-        </nav>
-
-        <div className="hidden items-center gap-3 md:flex">
-          <NavLink to="/app">
-            <Button variant={overHero ? "onDark" : "primary"}>Try a sample</Button>
-          </NavLink>
-        </div>
-
-        <button
-          type="button"
-          className="md:hidden"
-          aria-label={open ? "Close menu" : "Open menu"}
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? <X size={24} /> : <List size={24} />}
-        </button>
-      </div>
-
-      {open ? (
+    <header className="fixed inset-x-0 top-0 z-[10]">
+      <div className="mx-auto max-w-[1400px] px-4 pt-3 md:px-6 md:pt-4">
         <div
           className={cx(
-            "border-t px-5 py-4 md:hidden",
-            overHero
-              ? "border-white/15 bg-ink/90 backdrop-blur"
-              : "border-hairline bg-canvas",
+            "glass-panel flex h-14 items-center justify-between rounded-full border-hairline px-4 md:h-16 md:px-6",
+            overHero && "bg-black/35",
           )}
         >
-          <div className="flex flex-col gap-4 text-sm">
+          <Link to="/" className="text-base font-semibold tracking-tight md:text-lg">
+            RESIDUALS
+          </Link>
+
+          <nav className="hidden items-center gap-7 text-sm text-ink-muted lg:flex">
             {links.map((l) => (
-              <a key={l.to} href={l.to} onClick={() => setOpen(false)}>
+              <NavLink
+                key={l.to}
+                to={l.to}
+                className={({ isActive }) =>
+                  cx("transition hover:text-ink", isActive && "text-ink")
+                }
+              >
                 {l.label}
-              </a>
+              </NavLink>
             ))}
-            <NavLink to="/app" onClick={() => setOpen(false)}>
-              <Button variant={overHero ? "onDark" : "primary"} className="w-full">
-                Try a sample
-              </Button>
-            </NavLink>
+          </nav>
+
+          <div className="hidden items-center gap-3 md:flex">
+            <Magnetic>
+              <NavLink to="/ask">
+                <Button variant="amber">Try a sample</Button>
+              </NavLink>
+            </Magnetic>
           </div>
+
+          <button
+            type="button"
+            className="rounded-full p-2 text-ink lg:hidden"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? <X size={22} /> : <List size={22} />}
+          </button>
         </div>
-      ) : null}
+
+        {open ? (
+          <div className="glass-panel mt-2 rounded-3xl border border-hairline p-5 lg:hidden">
+            <div className="flex flex-col gap-4 text-sm">
+              {links.map((l) => (
+                <NavLink
+                  key={l.to}
+                  to={l.to}
+                  onClick={() => setOpen(false)}
+                  className="text-ink-muted hover:text-ink"
+                >
+                  {l.label}
+                </NavLink>
+              ))}
+              <NavLink to="/ask" onClick={() => setOpen(false)}>
+                <Button variant="amber" className="w-full">
+                  Try a sample
+                </Button>
+              </NavLink>
+            </div>
+          </div>
+        ) : null}
+      </div>
     </header>
   );
 }

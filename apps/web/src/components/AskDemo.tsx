@@ -64,7 +64,7 @@ export function AskDemo({
           <button
             type="button"
             className={`rounded-full px-4 py-2 transition ${
-              mode === "sample" ? "bg-ink text-white" : "text-ink-muted"
+              mode === "sample" ? "bg-amber text-ink-inverse" : "text-ink-muted"
             }`}
             onClick={() => setMode("sample")}
           >
@@ -73,7 +73,7 @@ export function AskDemo({
           <button
             type="button"
             className={`rounded-full px-4 py-2 transition ${
-              mode === "ask" ? "bg-ink text-white" : "text-ink-muted"
+              mode === "ask" ? "bg-amber text-ink-inverse" : "text-ink-muted"
             }`}
             onClick={() => setMode("ask")}
           >
@@ -85,6 +85,8 @@ export function AskDemo({
       <form onSubmit={submit} className="mt-8 space-y-4">
         <Field label="Question" hint="Practical how-to questions work best.">
           <Input
+            id="ask-question"
+            name="q"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Ask something practical..."
