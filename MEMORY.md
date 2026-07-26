@@ -53,8 +53,8 @@ Ship RESIDUALS (OKX.AI A2MCP) for Creative Genius 1st place. Real infra, no mock
 - [x] Render always-on API + real env + cron
 - [x] Vercel frontend
 - [x] Prod HTTPS probes (health/sample/ask402/ledger/web)
+- [x] Prod paid settle e2e — tx `0xa5b4b92581a065451eea9ca5bafaa21ab82aa6c313e74c1dde1ba55315a51d35` (~4.8s)
 - [ ] ASP listing via Onchain OS → `AGENT_ID`
-- [ ] Prod paid settle e2e (`PUBLIC_BASE_URL` already set)
 - [ ] Royalty accrual (≥2 distinct payers) + sweep credit
 - [ ] Demo / X / #OKXAI / Google form
 - [ ] ≥10 external contributors
@@ -80,4 +80,4 @@ curl -i https://residuals-api.onrender.com/health
 ```
 
 ## Last update
-2026-07-25 ~21:30 UTC — GitHub 100 commits pushed; Render `residuals-api` LIVE with full env; Vercel `residuals-web.vercel.app` LIVE; prod probes green; next = ASP listing.
+2026-07-25 ~21:35 UTC — GitHub 100+ commits; Render + Vercel LIVE; prod paid `/ask` settle PASS; next = Onchain OS ASP listing with `docs/LISTING.md` + `docs/avatar.png`.
