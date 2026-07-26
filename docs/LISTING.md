@@ -1,14 +1,14 @@
-# RESIDUALS — OKX.AI ASP listing copy
+﻿# RESIDUALS â€” OKX.AI ASP listing copy
 
 **Agent name:** RESIDUALS  
 **Category:** Lifestyle  
 **Protocol:** A2MCP  
 
-## Description (≤500 chars)
+## Description (â‰¤500 chars)
 
-RESIDUALS answers practical how-to questions from a human-contributed knowledge corpus. Each paid query retrieves the most relevant contributor entries, composes an answer from that material only, and accrues a published share of the query fee to the contributors whose entries were cited. Contributors withdraw USD₮0 on X Layer.
+RESIDUALS answers practical how-to questions from a human-contributed knowledge corpus. Each paid query retrieves the most relevant contributor entries, composes an answer from that material only, and accrues a published share of the query fee to the contributors whose entries were cited. Contributors withdraw USDâ‚®0 on X Layer.
 
-## Service 1 — Ask
+## Service 1 â€” Ask
 
 - **serviceName:** Ask  
 - **serviceType:** A2MCP  
@@ -18,9 +18,9 @@ RESIDUALS answers practical how-to questions from a human-contributed knowledge 
 **serviceDescription (3 parts):**  
 1) Submit a practical how-to question via GET or POST.  
 2) Receive an answer composed only from retrieved contributor entries.  
-3) A published share of the 0.03 USD₮0 query fee accrues to cited contributors for later withdrawal.
+3) A published share of the 0.03 USDâ‚®0 query fee accrues to cited contributors for later withdrawal.
 
-## Service 2 — Sample
+## Service 2 â€” Sample
 
 - **serviceName:** Sample  
 - **serviceType:** A2MCP  
@@ -34,7 +34,7 @@ RESIDUALS answers practical how-to questions from a human-contributed knowledge 
 
 ## Avatar
 
-Local file ≤1 MB (URLs rejected): `docs/avatar.png` (copy of reeded-glass hero).
+Local file â‰¤1 MB (URLs rejected): `docs/avatar.png` (copy of reeded-glass hero).
 
 ## Probe checklist (before submit)
 
@@ -52,4 +52,4 @@ Repo: https://github.com/mohamedwael201193/RESIDUALS
 
 - Never use earn forever / passive income / guaranteed / yield / APY language.  
 - Host is Render **starter** always-on in Singapore (`residuals-api`).  
-- Record Agent ID here after submission: `AGENT_ID=`
+- Record Agent ID: **#9374** — Listing under review (AI quality review suggested pass)

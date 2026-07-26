@@ -35,3 +35,5 @@ Thumbs.db
 .loop-pid
 ask-body.json
 *.loop.*
+.vercel
+.env*

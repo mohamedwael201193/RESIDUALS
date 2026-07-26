@@ -47,6 +47,25 @@ export async function recordPayerSeen(
   }
 }
 
+/** Re-read distinct_payers after recordPayerSeen so accrual can unlock on the same query. */
+export async function withFreshDistinctPayers(
+  entries: RetrievedEntry[],
+): Promise<RetrievedEntry[]> {
+  if (entries.length === 0) return entries;
+  const ids = entries.map((e) => e.id);
+  const sql = db();
+  const rows = await sql<{ id: number; distinct_payers: number }[]>`
+    SELECT id, distinct_payers FROM entries WHERE id = ANY(${ids}::bigint[])
+  `;
+  const map = new Map(
+    rows.map((r) => [Number(r.id), Number(r.distinct_payers)]),
+  );
+  return entries.map((e) => ({
+    ...e,
+    distinct_payers: map.get(e.id) ?? e.distinct_payers,
+  }));
+}
+
 export async function isNearDuplicate(
   embeddingVec: string,
   contributor: string,

@@ -37,5 +37,13 @@ export async function retrieve(
     LIMIT ${topK}
   `;
 
-  return rows.filter((r) => r.score >= min);
+  // postgres.js returns BIGINT as string — normalize before accrual / JSON.
+  return rows
+    .map((r) => ({
+      ...r,
+      id: Number(r.id),
+      distinct_payers: Number(r.distinct_payers),
+      score: Number(r.score),
+    }))
+    .filter((r) => r.score >= min);
 }

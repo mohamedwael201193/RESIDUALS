@@ -4,6 +4,7 @@ import {
   filterAccrualEligible,
   queryHash,
   recordPayerSeen,
+  withFreshDistinctPayers,
 } from "./antifarm.js";
 import { composeAnswer, composeSample } from "./compose.js";
 import { db } from "./db/client.js";
@@ -84,17 +85,22 @@ export async function runAsk(params: {
 
   if (params.charge && params.payer && paid > 0n) {
     await recordPayerSeen(params.payer, entryIds);
+    // Re-read distinct_payers so the unlocking query can accrue immediately.
+    const fresh = await withFreshDistinctPayers(retrieved);
     const eligible = filterAccrualEligible(
-      excludePayerEntries(retrieved, params.payer),
+      excludePayerEntries(fresh, params.payer),
     );
-    // After recording seen, refresh distinct_payers for eligibility on NEXT queries.
-    // For first-time entries with <2 payers, still skip accrual this round.
     if (eligible.length > 0) {
-      await accrueRoyalties({
-        queryId,
-        paidMicros: paid,
-        entries: eligible,
-      });
+      try {
+        await accrueRoyalties({
+          queryId,
+          paidMicros: paid,
+          entries: eligible,
+        });
+      } catch (err) {
+        // Payment already settled — never fail the paid response on accrual.
+        console.error("accrueRoyalties failed", { queryId, err });
+      }
     }
   }
 

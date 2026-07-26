@@ -20,7 +20,9 @@ export async function accrueRoyalties(params: {
 
   const sql = db();
   for (const share of shares) {
-    const entry = params.entries.find((x) => x.id === Number(share.entryId));
+    const entry = params.entries.find(
+      (x) => Number(x.id) === Number(share.entryId),
+    );
     if (!entry || share.micros <= 0n) continue;
     await sql`
       INSERT INTO accruals (contributor, entry_id, query_id, micros)
