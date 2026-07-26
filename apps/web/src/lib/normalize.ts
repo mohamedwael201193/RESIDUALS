@@ -65,10 +65,16 @@ export function normalizeAsk(raw: unknown): AskResult {
 
 export function normalizeLedgerItem(raw: unknown): LedgerItem {
   const o = asRecord(raw);
-  const citationsRaw = o.citations ?? o.accruals ?? o.splits;
+  const citationsRaw = o.citations ?? o.royalties ?? o.accruals ?? o.splits;
+  const query =
+    str(o.query ?? o.query_text ?? o.q ?? o.prompt, "") ||
+    // Older rows only stored a hash before query_text existed.
+    (str(o.queryHash ?? o.query_hash)
+      ? `Query ${str(o.queryHash ?? o.query_hash).slice(0, 10)}…`
+      : "");
   return {
     id: num(o.id ?? o.query_id),
-    query: str(o.query ?? o.q ?? o.prompt, ""),
+    query,
     paidMicros: num(o.paidMicros ?? o.paid_micros ?? o.amount_micros),
     charged: bool(o.charged, true),
     createdAt: str(o.createdAt ?? o.created_at, new Date(0).toISOString()),

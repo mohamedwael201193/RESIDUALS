@@ -1,4 +1,4 @@
-import { ArrowClockwise, CurrencyDollar } from "@phosphor-icons/react";
+import { ArrowClockwise } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { ApiError, getLedger } from "../lib/api";
 import { formatMicrosDelta } from "../lib/money";
@@ -85,10 +85,11 @@ export function RoyaltyLedger({ limit = 20 }: { limit?: number }) {
                       : ""}
                     {item.charged ? "" : " · not charged"}
                   </p>
-                  <p className="mt-1 font-medium leading-snug">{item.query || "(no query text)"}</p>
+                  <p className="mt-1 font-medium leading-snug text-ink">
+                    {item.query || "Query text unavailable for this older row"}
+                  </p>
                 </div>
-                <p className="inline-flex items-center gap-1 text-sm font-medium text-amber">
-                  <CurrencyDollar size={16} weight="bold" />
+                <p className="font-mono text-sm font-medium text-amber">
                   {formatMicrosDelta(item.paidMicros)}
                 </p>
               </div>

@@ -12,6 +12,15 @@ import { env } from "./env.js";
 import { retrieve } from "./retrieval.js";
 import { accrueRoyalties } from "./royalties.js";
 
+export type AskCitation = {
+  entryId: number;
+  handle: string;
+  topic: string;
+  contributor: string;
+  score: number;
+  snippet: string;
+};
+
 export type AskResult = {
   answer: string;
   charged: boolean;
@@ -19,7 +28,19 @@ export type AskResult = {
   entryIds: number[];
   scores: number[];
   queryId: number | null;
+  citations: AskCitation[];
 };
+
+function citationsFrom(retrieved: Awaited<ReturnType<typeof retrieve>>): AskCitation[] {
+  return retrieved.map((r) => ({
+    entryId: r.id,
+    handle: r.contributor.slice(0, 6) + "…" + r.contributor.slice(-4),
+    topic: r.topic,
+    contributor: r.contributor,
+    score: r.score,
+    snippet: r.body.length > 160 ? `${r.body.slice(0, 157)}…` : r.body,
+  }));
+}
 
 export async function runAsk(params: {
   q: string;
@@ -38,9 +59,10 @@ export async function runAsk(params: {
     const answer =
       "No contributor knowledge covers this yet. Try a more specific practical question, or contribute an entry.";
     const [row] = await db()`
-      INSERT INTO queries (query_hash, payer, paid_micros, entry_ids, scores, charged, answer)
+      INSERT INTO queries (query_hash, query_text, payer, paid_micros, entry_ids, scores, charged, answer)
       VALUES (
         ${queryHash(q)},
+        ${q},
         ${params.payer},
         ${0},
         ${[] as number[]},
@@ -57,6 +79,7 @@ export async function runAsk(params: {
       entryIds: [],
       scores: [],
       queryId: Number(row!.id),
+      citations: [],
     };
   }
 
@@ -69,9 +92,10 @@ export async function runAsk(params: {
   const scores = retrieved.map((r) => r.score);
 
   const [row] = await db()`
-    INSERT INTO queries (query_hash, payer, paid_micros, entry_ids, scores, charged, answer)
+    INSERT INTO queries (query_hash, query_text, payer, paid_micros, entry_ids, scores, charged, answer)
     VALUES (
       ${queryHash(q)},
+      ${q},
       ${params.payer},
       ${paid.toString()},
       ${entryIds},
@@ -82,6 +106,19 @@ export async function runAsk(params: {
     RETURNING id
   `;
   const queryId = Number(row!.id);
+
+  // Prefer contributor handles when available.
+  const handleRows = await db()`
+    SELECT address, handle FROM contributors
+    WHERE address = ANY(${retrieved.map((r) => r.contributor)})
+  `;
+  const handleByAddr = new Map(
+    handleRows.map((h) => [String(h.address).toLowerCase(), String(h.handle)]),
+  );
+  const citations = citationsFrom(retrieved).map((c) => ({
+    ...c,
+    handle: handleByAddr.get(c.contributor.toLowerCase()) ?? c.handle,
+  }));
 
   if (params.charge && params.payer && paid > 0n) {
     try {
@@ -111,5 +148,6 @@ export async function runAsk(params: {
     entryIds,
     scores,
     queryId,
+    citations,
   };
 }

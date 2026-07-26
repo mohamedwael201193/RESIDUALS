@@ -160,7 +160,7 @@ curl -i https://residuals-api.onrender.com/health
 - Ask / Contribute / Ledger / Withdraw / Docs / About / How / 404 visited
 - Fixed: Ask toggle contrast on dark; form `name`/`id`; favicon; StoryPin TS types
 - Build: `npx vite build` PASS
-- **Not yet pushed/deployed to Vercel** — ask user or proceed on request
+- Pushed `7cc9ec5` to `main` → Vercel should auto-deploy https://residuals-web.vercel.app
 
 ### Unchanged (as required)
 - `lib/api.ts`, vault, wallet, backend, royalty logic, x402 contracts

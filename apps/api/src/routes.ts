@@ -79,6 +79,8 @@ async function handleSample(req: Request, res: Response) {
     fee: "0",
     entryIds: result.entryIds,
     scores: result.scores,
+    queryId: result.queryId,
+    citations: result.citations,
   });
 }
 
@@ -106,6 +108,7 @@ async function handleAsk(req: Request, res: Response) {
     entryIds: result.entryIds,
     scores: result.scores,
     queryId: result.queryId,
+    citations: result.citations,
     payer,
   });
 }
@@ -187,6 +190,7 @@ router.get(
       SELECT
         q.id,
         q.query_hash,
+        q.query_text,
         q.payer,
         q.paid_micros,
         q.entry_ids,
@@ -194,41 +198,78 @@ router.get(
         q.charged,
         q.created_at,
         COALESCE(
-          json_agg(
-            json_build_object(
-              'contributor', a.contributor,
-              'entryId', a.entry_id,
-              'micros', a.micros,
-              'display', NULL
+          (
+            SELECT json_agg(
+              json_build_object(
+                'contributor', a.contributor,
+                'entryId', a.entry_id,
+                'micros', a.micros,
+                'handle', c.handle,
+                'topic', e.topic
+              )
+              ORDER BY a.id
             )
-          ) FILTER (WHERE a.id IS NOT NULL),
-          '[]'
+            FROM accruals a
+            LEFT JOIN contributors c ON c.address = a.contributor
+            LEFT JOIN entries e ON e.id = a.entry_id
+            WHERE a.query_id = q.id
+          ),
+          '[]'::json
         ) AS royalties
       FROM queries q
-      LEFT JOIN accruals a ON a.query_id = q.id
-      GROUP BY q.id
       ORDER BY q.created_at DESC
       LIMIT ${limit} OFFSET ${offset}
     `;
 
     res.json({
-      items: rows.map((r) => ({
-        id: Number(r.id),
-        queryHash: r.query_hash,
-        payer: r.payer,
-        paidMicros: String(r.paid_micros),
-        paidDisplay: formatUsdDisplay(BigInt(r.paid_micros)),
-        entryIds: r.entry_ids,
-        scores: r.scores,
-        charged: r.charged,
-        createdAt: r.created_at,
-        royalties: (r.royalties as Array<{ micros: number; contributor: string; entryId: number }>).map(
-          (x) => ({
+      items: rows.map((r) => {
+        const queryText =
+          typeof r.query_text === "string" && r.query_text.trim()
+            ? r.query_text.trim()
+            : null;
+        return {
+          id: Number(r.id),
+          query: queryText,
+          queryHash: r.query_hash,
+          payer: r.payer,
+          paidMicros: String(r.paid_micros),
+          paidDisplay: formatUsdDisplay(BigInt(r.paid_micros)),
+          entryIds: r.entry_ids,
+          scores: r.scores,
+          charged: r.charged,
+          createdAt: r.created_at,
+          royalties: (
+            r.royalties as Array<{
+              micros: number;
+              contributor: string;
+              entryId: number;
+              handle?: string;
+              topic?: string;
+            }>
+          ).map((x) => ({
             ...x,
+            entryId: Number(x.entryId),
+            micros: Number(x.micros),
             display: `+${formatUsdDisplay(BigInt(x.micros))}`,
-          }),
-        ),
-      })),
+          })),
+          // Alias for web clients that expect citations[]
+          citations: (
+            r.royalties as Array<{
+              micros: number;
+              contributor: string;
+              entryId: number;
+              handle?: string;
+              topic?: string;
+            }>
+          ).map((x) => ({
+            entryId: Number(x.entryId),
+            handle: x.handle || `${x.contributor.slice(0, 6)}…${x.contributor.slice(-4)}`,
+            topic: x.topic,
+            contributor: x.contributor,
+            micros: Number(x.micros),
+          })),
+        };
+      }),
       limit,
       offset,
     });
